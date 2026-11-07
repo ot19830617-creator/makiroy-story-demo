@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>槇ロイストーリー（見本）</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="home">
+<header class="app-header" id="app-header">
+  <div class="hd-row1">
+    <div class="hd-id">
+      <div class="avatar" id="hd-avatar" aria-hidden="true">悠</div>
+      <div class="hd-names">
+        <span class="team-name" id="hd-team">槇塚台ロイヤルズ</span>
+        <span class="player" id="hd-player">悠翔</span>
+        <span class="hd-sub" id="hd-sub"></span>
+      </div>
+      <div class="hd-screen-box">
+        <span class="hd-screen" id="hd-screen"></span>
+        <span class="hd-screen-sub" id="hd-screen-sub"></span>
+      </div>
+    </div>
+    <nav id="main-nav" aria-label="メイン">
+      <button type="button" class="tab active" data-tab="dashboard">ホーム</button>
+      <button type="button" class="tab" data-tab="games">試合</button>
+      <button type="button" class="tab" data-tab="charts">打つ</button>
+      <button type="button" class="tab" data-tab="run">走る</button>
+      <button type="button" class="tab" data-tab="analysis">守る</button>
+    </nav>
+    <div id="filter-slot-pc" class="hd-filter"></div>
+    <div id="header-backup" class="hd-backup" hidden></div>
+    <button type="button" class="record-btn" data-action="record">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>試合を記録
+    </button>
+    <button type="button" class="tab data-btn" data-tab="data" aria-label="データ管理">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/></svg>
+    </button>
+  </div>
+  <div id="filter-slot-mobile" class="hd-filter-m"></div>
+  <div id="filter-bar" hidden></div>
+</header>
+<div class="demo-band" role="note">見本版です。悠翔の成績が入っています。試しに入力した内容は、あなたのスマホ（PC）の中だけに保存され、ほかの人には見えません。</div>
+<div id="banner"></div>
+<main>
+  <div id="seg-tabs" class="seg-tabs" role="tablist" aria-label="成績" hidden>
+    <button type="button" class="seg" role="tab" data-tab="charts">打つ</button>
+    <button type="button" class="seg" role="tab" data-tab="run">走る</button>
+    <button type="button" class="seg" role="tab" data-tab="analysis">守る</button>
+  </div>
+  <div id="page-head" class="page-head" hidden></div>
+  <section id="panel-dashboard" class="panel"><div id="dashboard"></div></section>
+  <section id="panel-games" class="panel" hidden><div id="games"></div></section>
+  <section id="panel-charts" class="panel" hidden><div id="charts"></div></section>
+  <section id="panel-run" class="panel" hidden><div id="run"></div></section>
+  <section id="panel-analysis" class="panel" hidden><div id="analysis"></div></section>
+  <section id="panel-form" class="panel" hidden>
+    <div id="form-gate"></div>
+    <div id="form"></div>
+  </section>
+  <section id="panel-data" class="panel" hidden><div id="data"></div></section>
+</main>
+<nav id="mobile-nav" aria-label="メイン（スマホ）">
+  <button type="button" class="tab mnav active" data-tab="dashboard">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5L12 4l8 7.5"/><path d="M6.5 10.5V20h11v-9.5"/></svg><span>ホーム</span>
+  </button>
+  <button type="button" class="tab mnav" data-tab="games">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span>試合</span>
+  </button>
+  <button type="button" class="mnav mnav-record" data-action="record" aria-label="試合を記録">
+    <span class="fab"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span>記録</span>
+  </button>
+  <button type="button" class="tab mnav" data-tab="charts" data-group="stats">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M6 16l4.5-6 3.5 3 5-7"/></svg><span>成績</span>
+  </button>
+  <button type="button" class="tab mnav" data-tab="data">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/></svg><span>データ</span>
+  </button>
+</nav>
+<script src="lib/chart.umd.js"></script>
+<script src="js/seed-data.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/comments.js"></script>
+<script src="js/derive.js"></script>
+<script src="js/glossary.js"></script>
+<script src="js/validate.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/form.js"></script>
+<script src="js/field.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
