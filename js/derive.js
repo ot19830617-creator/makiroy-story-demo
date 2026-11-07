@@ -169,15 +169,16 @@
   }
 
   // ---- 表示の設定（成績データとは別のキー。バックアップには入らない） ----
-  var UI_DEFAULT = { gamesView: "cards" };
+  var UI_DEFAULT = { gamesView: "cards", guideSeen: false };
 
   function loadUi(key) {
-    var r = { gamesView: UI_DEFAULT.gamesView };
+    var r = { gamesView: UI_DEFAULT.gamesView, guideSeen: UI_DEFAULT.guideSeen };
     try {
       var raw = window.localStorage.getItem(key);
       if (raw) {
         var o = JSON.parse(raw);
         if (o && (o.gamesView === "cards" || o.gamesView === "table")) r.gamesView = o.gamesView;
+        if (o && o.guideSeen === true) r.guideSeen = true;
       }
     } catch (e) { /* 使えない・壊れているときは既定値 */ }
     return r;
@@ -185,14 +186,23 @@
 
   function saveUi(key, ui) {
     try {
-      window.localStorage.setItem(key, JSON.stringify({ gamesView: ui.gamesView }));
+      window.localStorage.setItem(key, JSON.stringify({ gamesView: ui.gamesView, guideSeen: ui.guideSeen === true }));
       return true;
     } catch (e) {
       return false;
     }
   }
 
+  // 選手の名前の確認：1〜20文字（前後の空白は数えない）。問題がなければ空の文字列、あれば日本語のメッセージ。
+  function validatePlayerName(name) {
+    var s = typeof name === "string" ? name.trim() : "";
+    if (s.length === 0) return "選手の名前を入れてください。";
+    if (s.length > 20) return "選手の名前は20文字以内で入れてください。";
+    return "";
+  }
+
   window.Derive = {
+    validatePlayerName: validatePlayerName,
     UI_KEY: "makiroy-demo-ui",   // 見本版専用の保存の名前
     dateLabels: dateLabels,
     stealText: stealText,

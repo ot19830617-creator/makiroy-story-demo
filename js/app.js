@@ -62,8 +62,27 @@
   // 表示する試合が0件なら、メッセージを出して true を返す。
   function showEmptyIfNone(root) {
     if (viewGames().length > 0) return false;
-    root.appendChild(el("p", "empty", filterActive() ? "条件に合う試合がありません。" : "試合データがありません。"));
+    if (filterActive()) {
+      root.appendChild(el("p", "empty", "条件に合う試合がありません。"));
+    } else {
+      root.appendChild(emptyCard());
+    }
     return true;
+  }
+
+  // 試合が1つもないときの案内（試用版の最初の画面など）
+  function emptyCard() {
+    var box = el("section", "empty-card");
+    box.appendChild(el("h3", "", "まだ試合がありません。"));
+    box.appendChild(textEl("p", "", [el("b", "", "＋記録"), " から入れてください。"]));
+    box.appendChild(el("p", "empty-sub", "試合を記録すると、ここに出ます。"));
+    if (canEdit()) {
+      var b = el("button", "btn primary", "＋ 試合を記録");
+      b.type = "button";
+      b.addEventListener("click", recordAction);
+      box.appendChild(b);
+    }
+    return box;
   }
 
   // 選んでいた値が選択肢から消えていたら「すべて」に戻す。
@@ -76,7 +95,7 @@
   function renderFilterBar() {
     var bar = document.getElementById("filter-bar");
     clear(bar);
-    bar.hidden = !(state.data && FILTER_TABS.indexOf(currentTab) >= 0);
+    bar.hidden = !(state.data && games().length > 0 && FILTER_TABS.indexOf(currentTab) >= 0);
     if (bar.hidden) return;
     var opts = Stats.filterOptions(games());
 
@@ -144,8 +163,8 @@
   }
 
   // ---- ヘッダー（チーム名・選手名・補足・画面名・バックアップの注意） ----
-  var SCREEN_NAMES = { dashboard: "", games: "試合", charts: "打つ", run: "走る", analysis: "守る", form: "試合を記録", data: "データ管理" };
-  var SCREEN_TITLES_MOBILE = { games: "試合", charts: "成績　打つ", run: "成績　走る", analysis: "成績　守る", form: "試合を記録", data: "データ管理" };
+  var SCREEN_NAMES = { dashboard: "", games: "試合", charts: "打つ", run: "走る", analysis: "守る", form: "試合を記録", data: "データ管理", guide: "使い方" };
+  var SCREEN_TITLES_MOBILE = { games: "試合", charts: "成績　打つ", run: "成績　走る", analysis: "成績　守る", form: "試合を記録", data: "データ管理", guide: "使い方" };
 
   function screenSub(name, n) {
     return {
@@ -154,7 +173,8 @@
       run: n + "試合の走塁",
       analysis: n + "試合の守備と登板",
       form: "試合を記録します",
-      data: "バックアップと復元"
+      data: "バックアップと復元",
+      guide: "このアプリの見方と記録のしかた"
     }[name] || "";
   }
 
@@ -165,10 +185,10 @@
     // 試合の画面：「登板のみ」のときは、表示している試合の数を出す
     var shown = n;
     if (currentTab === "games" && state.pitchedOnly) shown = view.filter(function (g) { return g.pitched === true; }).length;
-    var player = state.data && state.data.player ? state.data.player : "悠翔";
+    var player = state.data && state.data.player ? state.data.player : "選手";
 
     document.getElementById("hd-team").textContent = TEAM_NAME;
-    document.getElementById("hd-avatar").textContent = player.charAt(0);
+    document.getElementById("hd-avatar").textContent = state.data && state.data.player ? player.charAt(0) : "？";
     document.getElementById("hd-player").textContent = player;
     document.getElementById("hd-sub").textContent = n > 0 ? gradeText(view) + "・" + periodText(view) + "・" + n + "試合" : "";
 
@@ -319,6 +339,8 @@
     var meta = state.data.meta;
     var text = "最終バックアップ：" + (meta.lastBackupAt ? meta.lastBackupAt.replace("T", " ").slice(0, 16) : "なし");
     var warn = false;   // 見本版：「バックアップしていない変更があります」は出さない（元：!meta.lastBackupAt || Date.parse(meta.lastModifiedAt) > Date.parse(meta.lastBackupAt)）
+    // まだ何も入れていない（0試合で、選手名もない）ときは、注意を出さない
+    if (state.data.games.length === 0 && !state.data.player) warn = false;
     return { text: text, warn: warn };
   }
 
@@ -1075,14 +1097,158 @@
     clear(root);
     if (!state.data) { unreadableNotice(root); return; }
     var view = viewGames();
+    if (nameCardNeeded()) root.appendChild(nameCard());
     if (view.length === 0) {
+      if (!filterActive() && !state.ui.guideSeen) root.appendChild(guideIntroCard());
       root.appendChild(backupBox("only-mobile"));   // バックアップ状態は全データのまま
-      showEmptyIfNone(root);
+      if (showEmptyIfNone(root)) { if (!filterActive()) root.appendChild(emptyBlocks()); }
       return;
     }
     var c = homeContext(view);
-    root.appendChild(homeMobile(c));
-    root.appendChild(homePC(c));
+    var hm = homeMobile(c);
+    if (!state.ui.guideSeen) hm.insertBefore(guideIntroCard(), hm.firstChild);
+    root.appendChild(hm);
+    var hp = homePC(c);
+    if (!state.ui.guideSeen) {
+      var tcard = hp.querySelector(".top-card");
+      if (tcard) tcard.appendChild(guideIntroLine());
+    }
+    root.appendChild(hp);
+  }
+
+  // ---- はじめての方へ（使い方への案内） ----
+  function markGuideSeen() {
+    state.ui.guideSeen = true;
+    Derive.saveUi(Derive.UI_KEY, state.ui);   // 表示の設定のキーに保存する。成績データには入れない
+  }
+
+  function guideIntroCard() {
+    var G = Guide.INTRO;
+    var card = el("section", "guide-intro");
+    card.setAttribute("aria-label", G.title);
+    var tx = el("div", "gi-text");
+    tx.appendChild(el("b", "", G.title));
+    tx.appendChild(el("span", "", G.text));
+    card.appendChild(tx);
+    var btns = el("div", "gi-btns");
+    var open = el("button", "btn small primary", G.open);
+    open.type = "button";
+    open.addEventListener("click", function () { markGuideSeen(); showTab("guide"); renderDashboard(); });
+    var close = el("button", "btn small", G.close);
+    close.type = "button";
+    close.addEventListener("click", function () { markGuideSeen(); renderDashboard(); });
+    btns.appendChild(open);
+    btns.appendChild(close);
+    card.appendChild(btns);
+    return card;
+  }
+
+  // PCのホーム：上段の右上に小さく1行（1画面に収めるため）
+  function guideIntroLine() {
+    var line = el("div", "gi-line");
+    var open = el("button", "gi-line-open", Guide.INTRO.title + "：" + Guide.INTRO.open);
+    open.type = "button";
+    open.addEventListener("click", function () { markGuideSeen(); showTab("guide"); renderDashboard(); });
+    var close = el("button", "gi-line-x", "×");
+    close.type = "button";
+    close.setAttribute("aria-label", "閉じる");
+    close.addEventListener("click", function () { markGuideSeen(); renderDashboard(); });
+    line.appendChild(open);
+    line.appendChild(close);
+    return line;
+  }
+
+  // ---- 選手の名前 ----
+  function nameCardNeeded() {
+    return !!state.data && canEdit() && games().length === 0 && !state.data.player;
+  }
+
+  function savePlayerName(name) {
+    var next = Storage2.deepCopy(state.data);
+    next.player = name.trim();
+    return commit(next);
+  }
+
+  // first：最初の入力（ホーム）か、データ管理の変更用か
+  function nameCard(first) {
+    var card = el(first === false ? "section" : "section", "name-card" + (first === false ? " data-card" : ""));
+    card.appendChild(el("h3", "", first === false ? "選手の名前" : "はじめに、選手の名前を入れてください"));
+    var row = el("div", "nc-row");
+    var inp = el("input");
+    inp.type = "text";
+    inp.value = first === false && state.data && state.data.player ? state.data.player : "";
+    inp.setAttribute("aria-label", "選手の名前");
+    inp.placeholder = "例：太郎";
+    var btn = el("button", "btn primary", "保存");
+    btn.type = "button";
+    btn.disabled = !canEdit();
+    var err = el("div", "field-error nc-err");
+    err.setAttribute("role", "alert");
+    function submit() {
+      var msg = Derive.validatePlayerName(inp.value);
+      if (msg) { err.textContent = msg; return; }
+      err.textContent = "";
+      savePlayerName(inp.value);
+    }
+    btn.addEventListener("click", submit);
+    inp.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { ev.preventDefault(); submit(); } });
+    row.appendChild(inp);
+    row.appendChild(btn);
+    card.appendChild(row);
+    if (first !== false) card.appendChild(el("p", "nc-note", "1〜20文字。あとから「データ」の画面で変えられます。"));
+    card.appendChild(err);
+    return card;
+  }
+
+  // 0試合のホーム：打つ・走る・守るの枠（中身は試合を記録すると出る）
+  function emptyBlocks() {
+    var wrap = el("div", "empty-blocks");
+    [["bat", "打つ", "charts"], ["run", "走る", "run"], ["field", "守る", "analysis"]].forEach(function (x) {
+      var b = el("section", "blk blk-" + x[0] + " blk-empty");
+      b.appendChild(blockHead(x[0], x[1], x[2]));
+      b.appendChild(el("div", "be-dash num", "−"));
+      b.appendChild(el("p", "be-note", "試合を記録すると、ここに出ます。"));
+      wrap.appendChild(b);
+    });
+    return wrap;
+  }
+
+  // ---- 使い方のページ ----
+  function boldParts(node, line) {
+    Guide.parseBold(line).forEach(function (p) {
+      node.appendChild(p.bold ? el("b", "", p.text) : document.createTextNode(p.text));
+    });
+    return node;
+  }
+
+  function renderGuide() {
+    var root = document.getElementById("guide");
+    if (!root) return;
+    clear(root);
+    var note = Guide.modeNote(document.documentElement.getAttribute("data-mode") || "");
+    var wrap = el("div", "guide-wrap");
+    if (note) {
+      var box = el("section", "guide-note");
+      box.appendChild(el("b", "gn-lead", note.lead));
+      box.appendChild(boldParts(el("span", "gn-text"), note.text));
+      wrap.appendChild(box);
+    }
+    var grid = el("div", "guide-grid");
+    Guide.SECTIONS.forEach(function (s) {
+      var card = el("section", "guide-card");
+      card.appendChild(el("h3", "", s.title));
+      var list = el(s.kind === "steps" ? "ol" : "ul", "guide-list" + (s.kind === "steps" ? " steps" : ""));
+      s.lines.forEach(function (line, i) {
+        var li = el("li");
+        if (s.kind === "steps") li.appendChild(el("span", "gl-no", Guide.CIRCLED[i] || String(i + 1)));
+        li.appendChild(boldParts(el("span", "gl-text"), line));
+        list.appendChild(li);
+      });
+      card.appendChild(list);
+      grid.appendChild(card);
+    });
+    wrap.appendChild(grid);
+    root.appendChild(wrap);
   }
 
   // ---- 試合（月ごとのカード） ----
@@ -1978,6 +2144,15 @@
     if (state.status === "needsMigration") root.appendChild(migrationSection());
     var grid = el("div", "data-grid");
 
+    var cg = el("section", "data-card data-guide");
+    cg.appendChild(el("h3", "", "使い方"));
+    cg.appendChild(el("p", "", "このアプリの見方と、記録のしかたを説明しています。"));
+    var gb = el("button", "btn primary", "使い方を見る");
+    gb.type = "button";
+    gb.addEventListener("click", function () { showTab("guide"); });
+    cg.appendChild(gb);
+    grid.appendChild(cg);
+
     var c1 = el("section", "data-card");
     c1.appendChild(el("h3", "", "今のデータ"));
     if (state.data) {
@@ -1992,6 +2167,8 @@
       c1.appendChild(el("p", "empty", "読み込めるデータがありません。"));
     }
     grid.appendChild(c1);
+
+    if (state.data) grid.appendChild(nameCard(false));
 
     var c2 = el("section", "data-card");
     c2.appendChild(el("h3", "", "バックアップを保存"));
@@ -2109,6 +2286,7 @@
     renderAnalysis();
     renderFormGate();
     renderData();
+    renderGuide();
     if (!document.getElementById("panel-charts").hidden) renderCharts();
     placeFilterBar();
   }

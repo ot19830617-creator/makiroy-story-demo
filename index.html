@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-mode="demo">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,10 +11,10 @@
 <header class="app-header" id="app-header">
   <div class="hd-row1">
     <div class="hd-id">
-      <div class="avatar" id="hd-avatar" aria-hidden="true">悠</div>
+      <div class="avatar" id="hd-avatar" aria-hidden="true">？</div>
       <div class="hd-names">
         <span class="team-name" id="hd-team">槇塚台ロイヤルズ</span>
-        <span class="player" id="hd-player">悠翔</span>
+        <span class="player" id="hd-player">選手</span>
         <span class="hd-sub" id="hd-sub"></span>
       </div>
       <div class="hd-screen-box">
@@ -34,6 +34,8 @@
     <button type="button" class="record-btn" data-action="record">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>試合を記録
     </button>
+    <button type="button" class="tab guide-btn guide-btn-pc" data-tab="guide">使い方</button>
+    <button type="button" class="tab guide-btn guide-btn-m" data-tab="guide" aria-label="使い方">？</button>
     <button type="button" class="tab data-btn" data-tab="data" aria-label="データ管理">
       <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/></svg>
     </button>
@@ -41,7 +43,7 @@
   <div id="filter-slot-mobile" class="hd-filter-m"></div>
   <div id="filter-bar" hidden></div>
 </header>
-<div class="demo-band" role="note">見本版です。悠翔の成績が入っています。試しに入力した内容は、あなたのスマホ（PC）の中だけに保存され、ほかの人には見えません。</div>
+<div class="mode-band" role="note">見本版です。悠翔の成績が入っています。試しに入力した内容は、あなたのスマホ（PC）の中だけに保存され、ほかの人には見えません。</div>
 <div id="banner"></div>
 <main>
   <div id="seg-tabs" class="seg-tabs" role="tablist" aria-label="成績" hidden>
@@ -60,6 +62,7 @@
     <div id="form"></div>
   </section>
   <section id="panel-data" class="panel" hidden><div id="data"></div></section>
+  <section id="panel-guide" class="panel" hidden><div id="guide"></div></section>
 </main>
 <nav id="mobile-nav" aria-label="メイン（スマホ）">
   <button type="button" class="tab mnav active" data-tab="dashboard">
@@ -84,6 +87,7 @@
 <script src="js/comments.js"></script>
 <script src="js/derive.js"></script>
 <script src="js/glossary.js"></script>
+<script src="js/guide.js"></script>
 <script src="js/validate.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/form.js"></script>

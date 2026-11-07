@@ -1001,20 +1001,96 @@ table.analysis th:first-child, table.analysis td:first-child { white-space: norm
   table.analysis th:first-child, table.analysis td:first-child { max-width: 300px; }
 }
 
-/* ===== 見本版：見本であることの帯（閉じるボタンなし） ===== */
-.demo-band { background: #FFF6D6; color: #6B5200; border-bottom: 1px solid #E8D48A; padding: 6px 16px; font-size: 14px; line-height: 1.35; font-weight: 700; text-align: center; }
+/* ===== 使い方・はじめての方へ・選手の名前・0試合の画面 ===== */
+.tab.guide-btn { border: 1px solid rgba(255, 255, 255, .55); background: transparent; color: #fff; cursor: pointer; flex-shrink: 0; font-family: "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif; }
+.tab.guide-btn.active { background: #fff; color: var(--team); }
+.tab.guide-btn-m { width: 44px; height: 44px; border-radius: 22px; padding: 0; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+.tab.guide-btn-pc { display: none; }
 
-/* 見本版：帯の分（約32px）を、PCのホームの上下の余白から取り、1画面（1920×940）に収める */
+.guide-intro { background: var(--card); border-radius: 16px; padding: 12px 14px; margin: 12px 0; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.guide-intro .gi-text { display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 1.5; }
+.guide-intro .gi-text b { font-size: 16px; color: var(--team); }
+.guide-intro .gi-btns { display: flex; gap: 8px; }
+.gi-line { display: none; }
+
+.name-card { background: var(--card); border-radius: 16px; padding: 14px 16px; margin: 12px 0; border: 2px solid var(--team); }
+.name-card.data-card { border: 0; margin: 0; }
+.name-card h3 { margin: 0 0 8px; font-size: 16px; font-weight: 900; }
+.nc-row { display: flex; gap: 8px; }
+.nc-row input { flex: 1; min-width: 0; padding: 8px 10px; font-size: 16px; min-height: 44px; border: 1px solid var(--line2, #D4D4D8); border-radius: 8px; font-family: inherit; box-sizing: border-box; }
+.nc-note { margin: 6px 0 0; font-size: 13px; color: var(--sub); }
+.nc-err { margin-top: 4px; font-size: 14px; }
+.nc-err:empty { display: none; }
+
+.empty-card { background: var(--card); border-radius: 16px; padding: 20px 18px; margin: 12px 0; text-align: center; }
+.empty-card h3 { margin: 0 0 6px; font-size: 18px; font-weight: 900; }
+.empty-card p { margin: 0 0 6px; font-size: 15px; }
+.empty-card .empty-sub { color: var(--sub); }
+.empty-card .btn { margin-top: 8px; }
+.empty-blocks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.blk-empty .be-dash { font-size: 40px; font-weight: 700; color: var(--gray-bar); line-height: 1; }
+.blk-empty .be-note { margin: 0; font-size: 14px; color: var(--sub); }
+
+.guide-wrap { display: flex; flex-direction: column; gap: 12px; padding-bottom: 24px; }
+.guide-note { background: var(--warn-bg); border: 2px solid var(--warn-line); color: var(--warn-text); border-radius: 16px; padding: 14px 16px; font-size: 15px; line-height: 1.6; }
+.guide-note .gn-lead { display: block; font-size: 16px; margin-bottom: 4px; }
+.guide-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.guide-card { background: var(--card); border-radius: 16px; padding: 14px 16px; }
+.guide-card h3 { margin: 0 0 8px; font-size: 16px; font-weight: 900; color: var(--team); }
+.guide-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.6; }
+.guide-list li { display: flex; gap: 8px; }
+.guide-list:not(.steps) li::before { content: "・"; flex: none; }
+.guide-list .gl-no { flex: none; font-weight: 900; color: var(--team); }
+.guide-list b { font-weight: 900; }
+.data-guide { grid-column: 1 / -1; }
+
 @media (min-width: 768px) {
-  .demo-band { padding: 4px 16px; }
+  .tab.guide-btn-m { display: none; }
+  .tab.guide-btn-pc { display: flex; align-items: center; height: 44px; padding: 0 18px; border-radius: 22px; font-size: 16px; font-weight: 700; }
+  .top-card { position: relative; }
+  .gi-line { display: flex; align-items: center; gap: 2px; position: absolute; top: 4px; right: 16px; font-size: 14px; z-index: 3; }
+  .gi-line-open { border: 0; background: transparent; color: var(--team); font: 700 14px "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif; cursor: pointer; text-decoration: underline; padding: 4px 6px; }
+  .gi-line-x { border: 0; background: transparent; color: var(--sub); font: 700 18px sans-serif; cursor: pointer; padding: 0 8px; }
+  .guide-intro { flex-direction: row; align-items: center; justify-content: space-between; padding: 14px 20px; }
+  .guide-intro .gi-text { font-size: 16px; flex-direction: row; gap: 14px; align-items: baseline; }
+  .guide-intro .gi-text b { font-size: 18px; }
+  .name-card h3 { font-size: 18px; }
+  .nc-row { max-width: 560px; }
+  .nc-note { font-size: 14px; }
+  .empty-card { padding: 32px; }
+  .empty-card h3 { font-size: 22px; }
+  .empty-card p { font-size: 17px; }
+  .empty-blocks { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .blk-empty .be-note { font-size: 16px; }
+  .guide-grid { display: block; column-count: 2; column-gap: 16px; }
+  .guide-card { break-inside: avoid; margin-bottom: 16px; }
+  .guide-note { font-size: 17px; padding: 18px 24px; }
+  .guide-note .gn-lead { font-size: 18px; }
+  .guide-card { padding: 18px 24px; }
+  .guide-card h3 { font-size: 20px; }
+  .guide-list { font-size: 17px; }
+}
+@media (min-width: 768px) {
+  /* 「使い方」のボタンが増えたぶん、ヘッダーが2段にならないよう、間隔を少し詰める */
+  .hd-row1 { gap: 12px 14px; }
+  #main-nav .tab { padding: 0 16px; }
+  .tab.guide-btn-pc { padding: 0 14px; font-size: 15px; }
+}
+@media (min-width: 768px) { .only-mobile { display: none; } }
+
+/* ===== 見本版・試用版：どの版かを示す帯（閉じるボタンなし） ===== */
+.mode-band { background: #FFF6D6; color: #6B5200; border-bottom: 1px solid #E8D48A; padding: 6px 16px; font-size: 14px; line-height: 1.35; font-weight: 700; text-align: center; }
+
+/* PCのホームを1画面（1920×940）に収めるため、帯のぶんを上下の余白から取る */
+@media (min-width: 768px) {
+  .mode-band { padding: 4px 16px; }
   body.home main { padding-top: 8px; padding-bottom: 8px; }
   .cols3 { margin-top: 10px; }
   .blk { padding-top: 14px; padding-bottom: 14px; }
 }
 
-/* 見本版（スマホ）：ホームは、ヘッダーの赤い部分の下の余白（44px）にカードが重なる作り。帯がカードに隠れないよう、帯をその余白の位置に置く */
+/* スマホ：ホームは、ヘッダーの赤い部分の下の余白（44px）にカードが重なる作り。帯がカードに隠れないよう、その位置に置く */
 @media (max-width: 767.98px) {
-  body.home .demo-band { margin-top: -44px; position: relative; z-index: 5; }
+  body.home .mode-band { margin-top: -44px; position: relative; z-index: 5; }
   body.home main { margin-top: 0; }
-  .demo-band { padding: 6px 16px; }
 }
